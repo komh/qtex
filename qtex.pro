@@ -2,4 +2,5 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     Hello \
-    BMI
+    BMI \
+    Baseball
