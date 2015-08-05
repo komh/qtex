@@ -4,4 +4,5 @@ SUBDIRS += \
     Hello \
     BMI \
     Baseball \
-    Puzzle
+    Puzzle \
+    Calc
