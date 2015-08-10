@@ -5,4 +5,5 @@ SUBDIRS += \
     BMI \
     Baseball \
     Puzzle \
-    Calc
+    Calc \
+    Exchange
