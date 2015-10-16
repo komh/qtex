@@ -6,4 +6,5 @@ SUBDIRS += \
     Baseball \
     Puzzle \
     Calc \
-    Exchange
+    Exchange \
+    TimeTable
