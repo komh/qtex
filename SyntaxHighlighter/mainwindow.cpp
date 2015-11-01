@@ -270,6 +270,7 @@ public:
                     const QString &prefix = "#")
         : TokenAbstract(token, color)
         , _prefix(prefix)
+        , _matched_token(prefix + token)
     {
     }
 
@@ -305,7 +306,7 @@ public:
 
             if (word == tkword)
             {
-                *token = prefix + word;
+                *token = _matched_token = prefix + word;
 
                 return true;
             }
@@ -319,7 +320,7 @@ public:
 
     QString token() const Q_DECL_OVERRIDE
     {
-        return _prefix + TokenAbstract::token();
+        return _matched_token;
     }
 
     QString html() const Q_DECL_OVERRIDE
@@ -335,7 +336,8 @@ public:
     }
 
 private:
-    QString _prefix;    /// 접두어
+    QString _prefix;                /// 접두어
+    mutable QString _matched_token; /// 일치한 토큰
 };
 
 /**
