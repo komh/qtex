@@ -7,4 +7,5 @@ SUBDIRS += \
     Puzzle \
     Calc \
     Exchange \
-    TimeTable
+    TimeTable \
+    SyntaxHighlighter
