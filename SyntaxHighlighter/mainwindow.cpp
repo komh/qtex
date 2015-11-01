@@ -365,7 +365,7 @@ public:
     {
         Q_UNUSED(parser);
 
-        QString tkblock(this->token());
+        QString tkblock(_started ? _endToken : _startToken);
 
         QString tk(*token);
 
@@ -395,12 +395,12 @@ public:
 
     QString token() const Q_DECL_OVERRIDE
     {
-        return _started ? _endToken : _startToken;
+        return _started ? _startToken : _endToken;
     }
 
     QString html() const Q_DECL_OVERRIDE
     {
-        QString tk(plainToHtml(_started ? _startToken : _endToken));
+        QString tk(plainToHtml(this->token()));
 
         if (_started)
             tk.prepend(QString("<span style=\"color:%1;\">").arg(color()));
