@@ -499,6 +499,7 @@ void MainWindow::initWidgets()
     _syntaxText = new QTextEdit(this);
     // 읽기 전용
     _syntaxText->setReadOnly(true);
+    _syntaxText->setText(tr("문법 강조 버튼을 누르세요"));
 
     // 문법 강조 버튼 생성
     _highlightButton = new QPushButton(tr("문법 강조(&H)"), this);
@@ -535,6 +536,10 @@ void MainWindow::plainTextChanged()
 
     disconnect(_syntaxText->verticalScrollBar(), SIGNAL(valueChanged(int)),
                _plainText->verticalScrollBar(), SLOT(setValue(int)));
+
+    // 문법 강조 텍스트용 위젯 초기화
+    _syntaxText->clear();
+    _syntaxText->setText(tr("문법 강조 버튼을 누르세요"));
 
     // 문법 강조 버튼 작동 가능하게
     _highlightButton->setEnabled(true);
