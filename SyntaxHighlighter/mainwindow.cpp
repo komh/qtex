@@ -466,7 +466,7 @@ void MainWindow::initMenus()
     QMenu *fileMenu = new QMenu(tr("파일(&F)"));
     // "끝내기" 액션 추가
     fileMenu->addAction(tr("끝내기(&x)"), this, SLOT(close()),
-                        QKeySequence::Quit);
+                        QKeySequence(tr("Ctrl+Q")));
 
     // "파일" 메뉴 추가
     menuBar()->addMenu(fileMenu);
