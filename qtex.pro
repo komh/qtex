@@ -8,4 +8,5 @@ SUBDIRS += \
     Calc \
     Exchange \
     TimeTable \
-    SyntaxHighlighter
+    SyntaxHighlighter \
+    DirLister
