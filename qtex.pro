@@ -9,4 +9,5 @@ SUBDIRS += \
     Exchange \
     TimeTable \
     SyntaxHighlighter \
-    DirLister
+    DirLister \
+    Clock
