@@ -56,14 +56,7 @@ public:
     {
         _pos = 0;
 
-        bool ok;
-        float lv = peekToken().toFloat(&ok);
-        if (ok)
-            nextToken();
-        else
-            lv = 0;
-
-        return level1(lv);
+        return level1(getNumber());
     }
 
 private:
