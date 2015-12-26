@@ -297,173 +297,190 @@ private:
     }
 };
 
-/**
- * @brief GraphWidget 생성자
- * @param parent 부모 위젯
- */
-GraphWidget::GraphWidget(QWidget *parent)
-        : QWidget(parent)
-        , _axisFixed(false)
-        , _start(0)
-        , _end(0)
-{
-}
 
 /**
- * @brief 좌표축 고정 상태 설정
- * @param fixed true 이면 고정되고, false 이면 고정되지 않음
+ * @brief 그래프 위젯
  */
-void GraphWidget::setAxisFixed(bool fixed)
+class GraphWidget : public QWidget
 {
-    _axisFixed = fixed;
-}
-
-/**
- * @brief 다항식을 설정한다
- * @param poly 다항식
- */
-void GraphWidget::setPoly(const QString &poly)
-{
-    _poly = poly;
-}
-
-/**
- * @brief 범위를 설정한다
- * @param start 시작값
- * @param end 끝값
- */
-void GraphWidget::setRange(float start, float end)
-{
-    _start = qMin(start, end);
-    _end = qMax(start, end);
-}
-
-/**
- * @brief 위젯 내부를 그린다
- */
-void GraphWidget::paintEvent(QPaintEvent */*e*/)
-{
-    if (_poly.isEmpty())
-        return;
-
-    float xStart = _start;
-    float xEnd = _end;
-    float xDelta = (xEnd - xStart) / 1000; // 범위를 1,000 등분함
-
-    QList<QPointF> ptfs;
-
-    PolyCalc pc(_poly);
-
-    // 최솟값과 최댓값 초기화
-    pc.setX(xStart);
-    float yMin = pc.calc();
-    float yMax = yMin;
-
-    // 점의 위치 계산
-    for (float x = xStart; x <= xEnd; x += xDelta)
+public:
+    /**
+     * @brief GraphWidget 생성자
+     * @param parent 부모 위젯
+     */
+    GraphWidget(QWidget *parent = 0)
+            : QWidget(parent)
+            , _axisFixed(false)
+            , _start(0)
+            , _end(0)
     {
-        QPointF ptf;
-
-        ptf.setX(x);
-
-        pc.setX(x);
-        ptf.setY(pc.calc());
-
-        ptfs.append(ptf);
-
-        // 최솟값 찾기
-        if (ptf.y() < yMin)
-            yMin = ptf.y();
-
-        // 최댓값 찾기
-        if (ptf.y() > yMax)
-            yMax = ptf.y();
     }
 
-    // 상수 함수에 대한 보정
-    if (yMax == yMin)
+    /**
+     * @brief 좌표축 고정 상태 설정
+     * @param fixed true 이면 고정되고, false 이면 고정되지 않음
+     */
+    void setAxisFixed(bool fixed)
     {
-        if (yMax == 0)
+        _axisFixed = fixed;
+    }
+
+    /**
+     * @brief 다항식을 설정한다
+     * @param poly 다항식
+     */
+    void setPoly(const QString &poly)
+    {
+        _poly = poly;
+    }
+
+    /**
+     * @brief 범위를 설정한다
+     * @param start 시작값
+     * @param end 끝값
+     */
+    void setRange(float start, float end)
+    {
+        _start = qMin(start, end);
+        _end = qMax(start, end);
+    }
+
+protected:
+    /**
+     * @brief 위젯 내부를 그린다
+     */
+    void paintEvent(QPaintEvent */*e*/)
+    {
+        if (_poly.isEmpty())
+            return;
+
+        float xStart = _start;
+        float xEnd = _end;
+        float xDelta = (xEnd - xStart) / 1000; // 범위를 1,000 등분함
+
+        QList<QPointF> ptfs;
+
+        PolyCalc pc(_poly);
+
+        // 최솟값과 최댓값 초기화
+        pc.setX(xStart);
+        float yMin = pc.calc();
+        float yMax = yMin;
+
+        // 점의 위치 계산
+        for (float x = xStart; x <= xEnd; x += xDelta)
         {
-            yMax = 10;
-            yMin = -10;
+            QPointF ptf;
+
+            ptf.setX(x);
+
+            pc.setX(x);
+            ptf.setY(pc.calc());
+
+            ptfs.append(ptf);
+
+            // 최솟값 찾기
+            if (ptf.y() < yMin)
+                yMin = ptf.y();
+
+            // 최댓값 찾기
+            if (ptf.y() > yMax)
+                yMax = ptf.y();
         }
-        else
+
+        // 상수 함수에 대한 보정
+        if (yMax == yMin)
         {
-            yMax = qAbs(yMax);
-            yMin = -yMax;
+            if (yMax == 0)
+            {
+                yMax = 10;
+                yMin = -10;
+            }
+            else
+            {
+                yMax = qAbs(yMax);
+                yMin = -yMax;
+            }
         }
+
+        float xScale;   // 수평 배율
+        float yScale;   // 수직 배율
+
+        int xOrg;   // x 축 원점
+        int yOrg;   // y 축 원점
+
+        int w = width() - 1;    // 실제로 그릴 수 있는 폭
+        int h = height() - 1;   // 실제로 그릴 수 있는 높이
+
+        if (_axisFixed)         // 좌표축이 고정되어 있으면,
+        {
+            // 위젯의 중심을 기준으로 배율 계산
+            xScale = (w / 2) / qMax(qAbs(xStart), qAbs(xEnd));
+            yScale = (h / 2) / qMax(qAbs(yMin), qAbs(yMax));
+
+            // 위젯의 중심이 원점
+            xOrg = w / 2;
+            yOrg = h / 2;
+        }
+        else                    // 좌표축이 고정되어 있지 않으면
+        {
+            // 수평 배율 계산
+            if (xEnd * xStart < 0 )
+                xScale = w * (xStart / (xEnd - xStart)) / xStart;
+            else
+                xScale = w / (xEnd - xStart);
+
+            // 수직 배율 계산
+            if (yMax * yMin < 0)
+                yScale = h * (yMin / (yMax - yMin)) / yMin;
+            else
+                yScale = h / (yMax - yMin);
+
+            // 실제 그래프에 따라 원점 설정
+            xOrg = -xStart * xScale;
+            yOrg = yMax * yScale;
+        }
+
+        QPainter painter(this);
+
+        // 평행이동/원점 변경
+        painter.translate(xOrg, yOrg);
+        // 배율 설정, x 축 대칭.
+        painter.scale(1, -1);
+
+        // 좌표축의 색깔은 검은색
+        painter.setPen(Qt::black);
+
+        if (_axisFixed) // 좌표축이 고정되어 있으면
+        {
+            // 위젯 중심에 좌표축 그림
+            painter.drawLine(-xOrg, 0, xOrg, 0);
+            painter.drawLine(0, -yOrg, 0, yOrg);
+        }
+        else            // 좌표축이 고정되어 있지 않으면
+        {
+            // 실제 그래프에 따라 좌표축 그림
+            painter.drawLine(xStart * xScale, 0, xEnd * xScale, 0);
+            painter.drawLine(0, yMin * yScale, 0, yMax * yScale);
+        }
+
+        // 그래프의 색깔은 빨간색
+        painter.setPen(Qt::red);
+
+        // 각 점들을 선으로 이음
+        for (int i = ptfs.count() - 1; i >= 1; --i)
+            painter.drawLine(ptfs.at(i).x() * xScale,
+                             ptfs.at(i).y() * yScale,
+                             ptfs.at(i-1).x() * xScale,
+                             ptfs.at(i-1).y() * yScale);
     }
 
-    float xScale;   // 수평 배율
-    float yScale;   // 수직 배율
-
-    int xOrg;   // x 축 원점
-    int yOrg;   // y 축 원점
-
-    int w = width() - 1;    // 실제로 그릴 수 있는 폭
-    int h = height() - 1;   // 실제로 그릴 수 있는 높이
-
-    if (_axisFixed)         // 좌표축이 고정되어 있으면,
-    {
-        // 위젯의 중심을 기준으로 배율 계산
-        xScale = (w / 2) / qMax(qAbs(xStart), qAbs(xEnd));
-        yScale = (h / 2) / qMax(qAbs(yMin), qAbs(yMax));
-
-        // 위젯의 중심이 원점
-        xOrg = w / 2;
-        yOrg = h / 2;
-    }
-    else                    // 좌표축이 고정되어 있지 않으면
-    {
-        // 수평 배율 계산
-        if (xEnd * xStart < 0 )
-            xScale = w * (xStart / (xEnd - xStart)) / xStart;
-        else
-            xScale = w / (xEnd - xStart);
-
-        // 수직 배율 계산
-        if (yMax * yMin < 0)
-            yScale = h * (yMin / (yMax - yMin)) / yMin;
-        else
-            yScale = h / (yMax - yMin);
-
-        // 실제 그래프에 따라 원점 설정
-        xOrg = -xStart * xScale;
-        yOrg = yMax * yScale;
-    }
-
-    QPainter painter(this);
-
-    // 평행이동/원점 변경
-    painter.translate(xOrg, yOrg);
-    // 배율 설정, x 축 대칭.
-    painter.scale(1, -1);
-
-    // 좌표축의 색깔은 검은색
-    painter.setPen(Qt::black);
-
-    if (_axisFixed) // 좌표축이 고정되어 있으면
-    {
-        // 위젯 중심에 좌표축 그림
-        painter.drawLine(-xOrg, 0, xOrg, 0);
-        painter.drawLine(0, -yOrg, 0, yOrg);
-    }
-    else            // 좌표축이 고정되어 있지 않으면
-    {
-        // 실제 그래프에 따라 좌표축 그림
-        painter.drawLine(xStart * xScale, 0, xEnd * xScale, 0);
-        painter.drawLine(0, yMin * yScale, 0, yMax * yScale);
-    }
-
-    // 그래프의 색깔은 빨간색
-    painter.setPen(Qt::red);
-
-    // 각 점들을 선으로 이음
-    for (int i = ptfs.count() - 1; i >= 1; --i)
-        painter.drawLine(ptfs.at(i).x() * xScale, ptfs.at(i).y() * yScale,
-                         ptfs.at(i-1).x() * xScale, ptfs.at(i-1).y() * yScale);
-}
+private:
+    bool _axisFixed;    ///< 좌표축 고정 상태
+    QString _poly;      ///< 다항식
+    float _start;       ///< 시작값
+    float _end;         ///< 끝값
+};
 
 /**
  * @brief Plot 생성자

@@ -27,27 +27,7 @@
 
 #include <QtWidgets>
 
-/**
- * @brief 그래프 위젯
- */
-class GraphWidget : public QWidget
-{
-public:
-    GraphWidget(QWidget *parent = 0);
-
-    void setAxisFixed(bool fixed);
-    void setPoly(const QString &poly);
-    void setRange(float start, float end);
-
-protected:
-    void paintEvent(QPaintEvent *e);
-
-private:
-    bool _axisFixed;    ///< 좌표축 고정 상태
-    QString _poly;      ///< 다항식
-    float _start;       ///< 시작값
-    float _end;         ///< 끝값
-};
+class GraphWidget;
 
 /**
  * @brief 그래프 그리기
