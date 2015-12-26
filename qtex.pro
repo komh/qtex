@@ -10,4 +10,5 @@ SUBDIRS += \
     TimeTable \
     SyntaxHighlighter \
     DirLister \
-    Clock
+    Clock \
+    Plot
