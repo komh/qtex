@@ -11,4 +11,5 @@ SUBDIRS += \
     SyntaxHighlighter \
     DirLister \
     Clock \
-    Plot
+    Plot \
+    Tetris
