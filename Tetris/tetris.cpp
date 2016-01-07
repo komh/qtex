@@ -278,6 +278,9 @@ public:
             _map.append(QVector<Block *>(_cols));
         }
 
+        // 타이머 연결
+        connect(&_timer, &_timer.timeout, this, &this->moveDown);
+
         // 새 게임 시작
         newGame();
     }
@@ -317,8 +320,7 @@ public:
         // 새 블럭 생성
         makeNewBlock();
 
-        // 타이머 연결, 1초에 한 번씩 내려감
-        connect(&_timer, &_timer.timeout, this, &this->moveDown);
+        // 타이머 시작, 1초에 한 번씩 내려감
         _timer.start(1000);
 
         // 판 갱신
