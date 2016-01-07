@@ -336,7 +336,11 @@ protected:
     {
         // 게임이 끝났으면 아무것도 하지 않음
         if (_gameOver)
+        {
+            QWidget::keyPressEvent(e);
+
             return;
+        }
 
         switch(e->key())
         {
