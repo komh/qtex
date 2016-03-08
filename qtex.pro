@@ -12,4 +12,5 @@ SUBDIRS += \
     DirLister \
     Clock \
     Plot \
-    Tetris
+    Tetris \
+    Diary
