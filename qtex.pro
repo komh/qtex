@@ -13,4 +13,5 @@ SUBDIRS += \
     Clock \
     Plot \
     Tetris \
-    Diary
+    Diary \
+    mpgui
