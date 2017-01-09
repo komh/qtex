@@ -14,4 +14,5 @@ SUBDIRS += \
     Plot \
     Tetris \
     Diary \
-    mpgui
+    mpgui \
+    lvplayer
