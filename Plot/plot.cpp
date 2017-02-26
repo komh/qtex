@@ -56,7 +56,7 @@ public:
     {
         _pos = 0;
 
-        return level1(getNumber());
+        return level1();
     }
 
 private:
@@ -80,6 +80,44 @@ private:
     inline QString nextToken()
     {
         return token(true);
+    }
+
+    /**
+     * @brief 부호를 읽는다
+     * @return 현재 토큰이 - 부호이면 -1, 아니면 1 을 돌려준다
+     * @remark 부호를 읽었으면 파싱 위치를 옮기고, 아니면 옮기지 않는다
+     */
+    inline float getSign()
+    {
+        QChar sign('+');
+        QString tok;
+
+        // 연속된 부호 허용
+        while(( tok = peekToken()) == "+" || tok == "-")
+        {
+            nextToken();
+
+            if( sign == tok.at(0))
+                sign = '+';
+            else
+                sign = '-';
+        }
+
+        return sign == '+' ? 1 : -1;
+    }
+
+    /**
+     * @brief 현재 토큰이 숫자인지 알려준다
+     * @return 현재 토큰이 숫자이면 true, 아니면 false 를 돌려준다.
+     * @remark 숫자를 읽었으면 파싱 위치를 옮기고, 아니면 옮기지 않는다.
+     */
+    inline bool isNumber()
+    {
+        bool ok;
+
+        peekToken().toFloat(&ok);
+
+        return ok;
     }
 
     /**
@@ -171,107 +209,110 @@ private:
 
     /**
      * @brief 더하기/빼기를 계산한다
-     * @param lv 왼쪽값
      * @return 계산 결과를 돌려준다
      */
-    float level1(float lv)
+    float level1()
     {
+        float res = 0;
         QString op(peekToken());
 
-        if (op == "+" || op == "-")
+        do
         {
-            nextToken();
+            if (op == "+" || op == "-")
+            {
+                nextToken();
 
-            // 오른쪽 값 계산
-            float rv = level2(getNumber());
+                // 오른쪽 값 계산
+                float rv = level2();
 
-            // 더하기/빼기 수행
-            if (op == "+")
-                lv += rv;
-            else /*if (op == "-") */
-                lv -= rv;
-        }
-        else if (!op.isEmpty()) // 더하기/빼기가 아니면
-            lv = level2(lv);    // 더 높은 우선순위로 넘김
+                // 더하기/빼기 수행
+                if (op == "+")
+                    res += rv;
+                else /*if (op == "-") */
+                    res -= rv;
+            }
+            else if (!op.isEmpty()) // 더하기/빼기가 아니면
+                res = level2();     // 더 높은 우선순위로 넘김
 
-        // 더하기/빼기가 이어지면 계속 계산
-        op = peekToken();
-        if (op == "+" || op == "-")
-            return level1(lv);
+            // 더하기/빼기가 이어지면 계속 계산
+            op = peekToken();
+        } while (op == "+" || op == "-");
 
-        return lv;
+        return res;
     }
 
     /**
      * @brief 곱하기/나누기를 계산한다
-     * @param lv 왼쪽값
      * @return 계산 결과를 돌려준다
      */
-    float level2(float lv)
+    float level2()
     {
+        float res;
         QString op(peekToken());
 
-        if (op == "*" || op == "/")
+        do
         {
-            nextToken();
+            if (op == "*" || op == "/")
+            {
+                nextToken();
 
-            // 오른쪽 값 계산
-            float rv = level3(getNumber());
+                // 오른쪽 값 계산
+                float rv = level3();
 
-            // 곱하기/나누기 수행
-            if (op == "*")
-                lv *= rv;
-            else /*if (op == "/") */
-                lv /= rv;
-        }
-        else if (!op.isEmpty()) // 곱하기/나누기가 아니면
-            lv = level3(lv);    // 더 높은 우선 순위로 넘김
+                // 곱하기/나누기 수행
+                if (op == "*")
+                    res *= rv;
+                else /*if (op == "/") */
+                    res /= rv;
+            }
+            else if (!op.isEmpty()) // 곱하기/나누기가 아니면
+                res = level3();    // 더 높은 우선 순위로 넘김
 
-        // 곱하기/나누기가 이어지면 계속 계산
-        op = peekToken();
-        if (op == "*" || op == "/")
-            return level2(lv);
+            // 곱하기/나누기가 이어지면 계속 계산
+            op = peekToken();
+        } while (op == "*" || op == "/");
 
-        return lv;
+        return res;
     }
 
     /**
      * @brief 거듭제곱을 계산한다
-     * @param lv
-     * @return
+     * @return 계산결과를 돌려준다
      */
-    float level3(float lv)
+    float level3()
     {
+        float res;
         QString op(peekToken());
 
-        if (op == "^")
+        do
         {
-            nextToken();
+            if (op == "^")
+            {
+                nextToken();
 
-            // 오른쪽 값 계산
-            float rv = level4(getNumber());
+                // 오른쪽 값 계산
+                float rv = level4();
 
-            // 거듭제곱 수행
-            lv = pow(lv, rv);
-        }
-        else if (!op.isEmpty()) // 거듭제곱이 아니면
-            lv = level4(lv);    // 더 높은 우선 순위로 넘김
+                // 거듭제곱 수행
+                res = pow(res, rv);
+            }
+            else if (!op.isEmpty()) // 거듭제곱이 아니면
+                res = level4();    // 더 높은 우선 순위로 넘김
 
-        // 거듭제곱이 이어지면 계속 계산
-        op = peekToken();
-        if (op == "^")
-            return level3(lv);
+            // 거듭제곱이 이어지면 계속 계산
+            op = peekToken();
+        } while (op == "^");
 
-        return lv;
+        return res;
     }
 
     /**
      * @brief 괄호를 계산한다
-     * @param lv 왼쪽값
      * @return 계산 결과를 돌려준다
      */
-    float level4(float lv)
+    float level4()
     {
+        float res;
         QString op(peekToken());
 
         if (op == "(")
@@ -279,14 +320,37 @@ private:
             nextToken();
 
             // 괄호를 계산한다
-            lv = level1(getNumber());
+            res = level1();
 
             // 괄호 대응여부 확인
             if (nextToken() != ")")
-                qDebug() << "Missing ')'";
+                qDebug() << "')' 빠졌음";
         }
+        else if (op == ")")
+            qDebug() << "')' 를 만났음";
+        else
+            res = level5();
 
-        return lv;
+        return res;
+    }
+
+    /**
+     * @brief 부호 또는 숫자를 계산한다
+     * @return 부호 또는 숫자의 값을 돌려준다
+     */
+    float level5()
+    {
+        float res;
+        QString op(peekToken());
+
+        if (op == "+" || op == "-")
+            res = getSign() * level2();
+        else if (isNumber())
+            res = getNumber();
+        else
+            qDebug() << "알 수 없는 토큰을 만났음: " << op;
+
+        return res;
     }
 };
 
