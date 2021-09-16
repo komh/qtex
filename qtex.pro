@@ -6,7 +6,6 @@ SUBDIRS += \
     Baseball \
     Puzzle \
     Calc \
-    Exchange \
     TimeTable \
     SyntaxHighlighter \
     DirLister \
@@ -16,3 +15,5 @@ SUBDIRS += \
     Diary \
     mpgui \
     lvplayer
+
+qtHaveModule(webkitwidgets): SUBDIRS += Exchange
