@@ -89,7 +89,7 @@ void DirLister::initWidgets()
     foreach (QFileInfo info, QDir::drives())
     {
         QEventLoop loop;
-        connect(_dirModel, &_dirModel->directoryLoaded, &loop, &loop.quit);
+        connect(_dirModel, &QFileSystemModel::directoryLoaded, &loop, &QEventLoop::quit);
 
         // 읽을 디렉토리 설정
         _dirModel->setRootPath(info.filePath());
@@ -106,7 +106,7 @@ void DirLister::initWidgets()
         if (_dirModel->rootPath() != dir)
         {
             QEventLoop loop;
-            connect(_dirModel, &_dirModel->directoryLoaded, &loop, &loop.quit);
+            connect(_dirModel, &QFileSystemModel::directoryLoaded, &loop, &QEventLoop::quit);
 
             _dirModel->setRootPath(dir);
             loop.exec();
@@ -122,8 +122,8 @@ void DirLister::initWidgets()
     // 두번째 이후 모든 컬럼 숨김
     for (int i = _dirModel->columnCount() - 1; i > 0; --i)
         _dirView->setColumnHidden(i, true);
-    connect(_dirView, &_dirView->activated, this, &this->dirActivated);
-    connect(_dirView, &_dirView->clicked, this, &this->dirActivated);
+    connect(_dirView, &QTreeView::activated, this, &DirLister::dirActivated);
+    connect(_dirView, &QTreeView::clicked, this, &DirLister::dirActivated);
 
     // 디렉토리 내용용 파일 시스템 모델 생성
     _entryModel = new QFileSystemModel;
